@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pacific_Atlantic_Water_Flow
 {
@@ -8,6 +9,19 @@ namespace Pacific_Atlantic_Water_Flow
     static void Main(string[] args)
     {
       // https://leetcode.com/problems/pacific-atlantic-water-flow/
+      // https://www.youtube.com/watch?v=9z2BunfoZ5Y
+      var board = new char[4][]
+      {
+        new char[] { 'X','X','X','0' },
+        new char[] { 'X','O','O','X' },
+        new char[] { 'X','X','O','X' },
+        new char[] { 'X','O','X','X' }
+      };
+
+      Solution1 s = new Solution1();
+      s.Solve(board);
+      foreach (var r in board)
+        Console.WriteLine(string.Join(",", r));
     }
   }
 
@@ -67,6 +81,68 @@ namespace Pacific_Atlantic_Water_Flow
       DFS(r - 1, c, visited, heights[r][c], heights);
       DFS(r, c + 1, visited, heights[r][c], heights);
       DFS(r, c - 1, visited, heights[r][c], heights);
+    }
+  }
+
+
+  public class Solution1
+  {
+    public void Solve(char[][] board)
+    {
+      // step 1 - mark O which are on the border as T
+      // step 2 - mark surrounded O as X
+      // step 3 - revert T to O
+
+      var row = board.Length;
+      var column = board[0].Length;
+
+      var borderRows = new int[] { 0, row - 1 };
+      var borderColumns = new int[] { 0, column - 1 };
+      // Step 1
+      for (int i = 0; i < row; i++)
+      {
+        for (int j = 0; j < column; j++)
+        {
+          if (board[i][j] == 'O' && (borderRows.Contains(i) || borderColumns.Contains(j)))
+          {
+            Dfs(i, j);
+          }
+        }
+      }
+
+      // Step 2
+      for (int i = 0; i < row; i++)
+      {
+        for (int j = 0; j < column; j++)
+        {
+          if (board[i][j] == 'O')
+          {
+            board[i][j] = 'X';
+          }
+        }
+      }
+
+      // Step 3
+      for (int i = 0; i < row; i++)
+      {
+        for (int j = 0; j < column; j++)
+        {
+          if (board[i][j] == 'T')
+          {
+            board[i][j] = 'O';
+          }
+        }
+      }
+
+      void Dfs(int r, int c)
+      {
+        if (r < 0 || c < 0 || r >= row || c >= column || board[r][c] != 'O') return;
+        board[r][c] = 'T';
+        Dfs(r + 1, c);
+        Dfs(r - 1, c);
+        Dfs(r, c + 1);
+        Dfs(r, c - 1);
+      }
     }
   }
 }
